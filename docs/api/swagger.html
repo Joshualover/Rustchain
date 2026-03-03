@@ -1,76 +1,1033 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RustChain Node API - Swagger UI</title>
-  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
-  <style>
-    html {
-      box-sizing: border-box;
-      overflow: -moz-scrollbars-vertical;
-      overflow-y: scroll;
-    }
-    *, *:before, *:after {
-      box-sizing: inherit;
-    }
-    body {
-      margin: 0;
-      background: #fafafa;
-    }
-    .topbar {
-      background-color: #1a1a2e !important;
-    }
-    .title {
-      color: #fff;
-    }
-    .info .title {
-      color: #3b82f6;
-    }
-    .scheme-container {
-      background: #f8f9fa;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RustChain Node API - Swagger UI</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .topbar {
+            background-color: #1a1a2e !important;
+        }
+        .topbar a {
+            color: #fff !important;
+        }
+        .swagger-ui .info .title {
+            color: #e94560;
+        }
+        .swagger-ui .info .description {
+            max-width: 100%;
+        }
+        .swagger-ui .opblock-tag {
+            background-color: #f8f8f8;
+            border-left: 4px solid #e94560;
+        }
+        .swagger-ui .opblock-get {
+            background-color: rgba(97, 175, 254, 0.1);
+            border-color: #61affe;
+        }
+        .swagger-ui .opblock-post {
+            background-color: rgba(73, 204, 144, 0.1);
+            border-color: #49cc90;
+        }
+        .swagger-ui .opblock-summary-method {
+            min-width: 70px;
+        }
+        #swagger-ui {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .info h3 {
+            color: #333;
+            margin-top: 20px;
+        }
+        .info ul {
+            background: #f5f5f5;
+            padding: 15px 30px;
+            border-radius: 4px;
+        }
+        .info li {
+            margin: 8px 0;
+        }
+        .wallet-address {
+            background: #e94560;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-  <div id="swagger-ui"></div>
+    <div id="swagger-ui"></div>
 
-  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js" charset="UTF-8"></script>
-  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
-  <script>
-    window.onload = function() {
-      // Build the Swagger UI
-      const ui = SwaggerUIBundle({
-        url: 'openapi.yaml',
-        dom_id: '#swagger-ui',
-        deepLinking: true,
-        presets: [
-          SwaggerUIBundle.presets.apis,
-          SwaggerUIStandalonePreset
+    <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js" crossorigin></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js" crossorigin></script>
+    
+    <script>
+        // OpenAPI 规范直接嵌入到 HTML 中
+        const openApiSpec = {
+  "openapi": "3.0.3",
+  "info": {
+    "title": "RustChain Node API",
+    "description": "RustChain 节点 API 文档 - Proof-of-Antiquity 区块链\n\nRustChain 是一个奖励复古硬件的区块链网络。此 API 提供节点健康检查、矿工管理、余额查询等功能。\n\n## 认证\n\n部分端点需要 `X-Admin-Key` 请求头进行认证。\n\n## 基础 URL\n\n`https://rustchain.org`",
+    "version": "1.0.0",
+    "contact": {
+      "name": "RustChain",
+      "url": "https://rustchain.org"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/Scottcjn/Rustchain/blob/main/LICENSE"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://rustchain.org",
+      "description": "RustChain 主节点"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "节点健康检查端点"
+    },
+    {
+      "name": "Network",
+      "description": "网络状态和统计信息"
+    },
+    {
+      "name": "Miners",
+      "description": "矿工信息和认证"
+    },
+    {
+      "name": "Wallet",
+      "description": "钱包和余额操作"
+    },
+    {
+      "name": "Admin",
+      "description": "需要管理员认证的操作"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "节点健康检查",
+        "description": "检查节点是否正常运行",
+        "operationId": "getHealth",
+        "responses": {
+          "200": {
+            "description": "节点健康",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "healthy"
+                    },
+                    "timestamp": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 1709366400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "节点不健康"
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "就绪探针",
+        "description": "检查节点是否准备好接受请求",
+        "operationId": "getReady",
+        "responses": {
+          "200": {
+            "description": "节点已就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ready": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/epoch": {
+      "get": {
+        "tags": ["Network"],
+        "summary": "获取当前纪元信息",
+        "description": "返回当前纪元、时隙和注册的矿工信息",
+        "operationId": "getEpoch",
+        "responses": {
+          "200": {
+            "description": "纪元信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EpochInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/miners": {
+      "get": {
+        "tags": ["Miners"],
+        "summary": "获取活跃矿工列表",
+        "description": "返回所有活跃矿工及其认证数据",
+        "operationId": "getMiners",
+        "responses": {
+          "200": {
+            "description": "矿工列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "miners": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Miner"
+                      }
+                    },
+                    "count": {
+                      "type": "integer",
+                      "example": 5
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats": {
+      "get": {
+        "tags": ["Network"],
+        "summary": "网络统计信息",
+        "description": "获取网络整体统计数据",
+        "operationId": "getStats",
+        "responses": {
+          "200": {
+            "description": "网络统计",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NetworkStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/hall_of_fame": {
+      "get": {
+        "tags": ["Network"],
+        "summary": "名人堂排行榜",
+        "description": "获取 5 个类别的名人堂排行榜",
+        "operationId": "getHallOfFame",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "排行榜类别",
+            "schema": {
+              "type": "string",
+              "enum": ["total_earnings", "uptime", "hardware_age", "contributions", "loyalty"]
+            }
+          }
         ],
-        plugins: [
-          SwaggerUIBundle.plugins.DownloadUrl
+        "responses": {
+          "200": {
+            "description": "名人堂数据",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HallOfFame"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fee_pool": {
+      "get": {
+        "tags": ["Network"],
+        "summary": "RIP-301 费用池统计",
+        "description": "获取费用池的当前状态和统计信息",
+        "operationId": "getFeePool",
+        "responses": {
+          "200": {
+            "description": "费用池数据",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeePool"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/balance": {
+      "get": {
+        "tags": ["Wallet"],
+        "summary": "查询矿工余额",
+        "description": "根据矿工 ID 查询钱包余额",
+        "operationId": "getBalance",
+        "parameters": [
+          {
+            "name": "miner_id",
+            "in": "query",
+            "required": true,
+            "description": "矿工钱包名称",
+            "schema": {
+              "type": "string",
+              "example": "joshualover-dev"
+            }
+          }
         ],
-        layout: "StandaloneLayout",
-        validatorUrl: "https://validator.swagger.io/validator",
-        displayRequestDuration: true,
-        filter: true,
-        showExtensions: true,
-        showCommonExtensions: true,
-        docExpansion: 'list',
-        defaultModelsExpandDepth: 2,
-        defaultModelExpandDepth: 2,
-        tagsSorter: 'alpha',
-        operationsSorter: 'alpha'
-      });
+        "responses": {
+          "200": {
+            "description": "余额信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Balance"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "矿工未找到"
+          }
+        }
+      }
+    },
+    "/lottery/eligibility": {
+      "get": {
+        "tags": ["Wallet"],
+        "summary": "纪元资格检查",
+        "description": "检查矿工在当前纪元的抽奖资格",
+        "operationId": "getLotteryEligibility",
+        "parameters": [
+          {
+            "name": "miner_id",
+            "in": "query",
+            "required": true,
+            "description": "矿工钱包名称",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "资格信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LotteryEligibility"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/explorer": {
+      "get": {
+        "tags": ["Network"],
+        "summary": "区块浏览器页面",
+        "description": "返回区块浏览器的 HTML 页面",
+        "operationId": "getExplorer",
+        "responses": {
+          "200": {
+            "description": "区块浏览器页面",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attest/submit": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "提交硬件认证",
+        "description": "提交硬件指纹认证数据",
+        "operationId": "submitAttestation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttestationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "认证成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttestationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "认证数据无效"
+          },
+          "401": {
+            "description": "缺少或无效的 X-Admin-Key"
+          }
+        },
+        "security": [
+          {
+            "AdminKey": []
+          }
+        ]
+      }
+    },
+    "/wallet/transfer/signed": {
+      "post": {
+        "tags": ["Wallet"],
+        "summary": "Ed25519 签名转账",
+        "description": "提交已签名的转账请求",
+        "operationId": "transferSigned",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignedTransferRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "转账成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "签名无效"
+          },
+          "401": {
+            "description": "认证失败"
+          }
+        },
+        "security": [
+          {
+            "AdminKey": []
+          }
+        ]
+      }
+    },
+    "/wallet/transfer": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "管理员转账",
+        "description": "需要管理员密钥的转账操作",
+        "operationId": "adminTransfer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminTransferRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "转账成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "管理员密钥无效"
+          },
+          "403": {
+            "description": "权限不足"
+          }
+        },
+        "security": [
+          {
+            "AdminKey": []
+          }
+        ]
+      }
+    },
+    "/withdraw/request": {
+      "post": {
+        "tags": ["Wallet"],
+        "summary": "提现请求",
+        "description": "提交提现请求",
+        "operationId": "requestWithdrawal",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "提现请求已提交",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证失败"
+          }
+        },
+        "security": [
+          {
+            "AdminKey": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "AdminKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Admin-Key",
+        "description": "管理员 API 密钥"
+      }
+    },
+    "schemas": {
+      "EpochInfo": {
+        "type": "object",
+        "properties": {
+          "epoch": {
+            "type": "integer",
+            "format": "int64",
+            "description": "当前纪元编号",
+            "example": 12345
+          },
+          "slot": {
+            "type": "integer",
+            "format": "int64",
+            "description": "当前时隙",
+            "example": 67890
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix 时间戳",
+            "example": 1709366400
+          },
+          "enrolled_miners": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "注册的矿工 ID 列表",
+            "example": ["miner1", "miner2", "joshualover-dev"]
+          },
+          "total_miners": {
+            "type": "integer",
+            "example": 5
+          }
+        }
+      },
+      "Miner": {
+        "type": "object",
+        "properties": {
+          "miner_id": {
+            "type": "string",
+            "description": "矿工钱包名称",
+            "example": "joshualover-dev"
+          },
+          "hardware_type": {
+            "type": "string",
+            "description": "硬件类型",
+            "example": "PowerPC G4"
+          },
+          "hardware_era": {
+            "type": "string",
+            "description": "硬件年代",
+            "example": "1999-2005"
+          },
+          "multiplier": {
+            "type": "number",
+            "format": "float",
+            "description": "古董倍数",
+            "example": 2.5
+          },
+          "attestation_status": {
+            "type": "string",
+            "enum": ["verified", "pending", "failed"],
+            "example": "verified"
+          },
+          "last_seen": {
+            "type": "integer",
+            "format": "int64",
+            "description": "最后活跃时间戳",
+            "example": 1709366400
+          },
+          "earnings": {
+            "type": "number",
+            "format": "float",
+            "description": "累计收益 (RTC)",
+            "example": 125.5
+          }
+        }
+      },
+      "NetworkStats": {
+        "type": "object",
+        "properties": {
+          "total_miners": {
+            "type": "integer",
+            "example": 42
+          },
+          "active_epochs": {
+            "type": "integer",
+            "example": 12345
+          },
+          "total_rtc_mined": {
+            "type": "number",
+            "format": "float",
+            "example": 18520.75
+          },
+          "average_multiplier": {
+            "type": "number",
+            "format": "float",
+            "example": 1.45
+          },
+          "network_hashrate": {
+            "type": "string",
+            "example": "N/A (PoA consensus)"
+          },
+          "last_block_time": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1709366400
+          }
+        }
+      },
+      "HallOfFame": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "example": "total_earnings"
+          },
+          "leaders": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rank": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "miner_id": {
+                  "type": "string",
+                  "example": "vintage_mac_g4"
+                },
+                "value": {
+                  "type": "number",
+                  "format": "float",
+                  "example": 1250.5
+                }
+              }
+            }
+          }
+        }
+      },
+      "FeePool": {
+        "type": "object",
+        "properties": {
+          "total_fees": {
+            "type": "number",
+            "format": "float",
+            "description": "费用池总额 (RTC)",
+            "example": 500.25
+          },
+          "distributed": {
+            "type": "number",
+            "format": "float",
+            "description": "已分配费用",
+            "example": 350.0
+          },
+          "pending": {
+            "type": "number",
+            "format": "float",
+            "description": "待分配费用",
+            "example": 150.25
+          },
+          "rip301_compliance": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "Balance": {
+        "type": "object",
+        "properties": {
+          "miner_id": {
+            "type": "string",
+            "example": "joshualover-dev"
+          },
+          "balance": {
+            "type": "number",
+            "format": "float",
+            "description": "余额 (RTC)",
+            "example": 125.5
+          },
+          "pending_rewards": {
+            "type": "number",
+            "format": "float",
+            "description": "待领取奖励",
+            "example": 2.5
+          },
+          "last_payout": {
+            "type": "integer",
+            "format": "int64",
+            "description": "上次支付时间戳",
+            "example": 1709360000
+          }
+        }
+      },
+      "LotteryEligibility": {
+        "type": "object",
+        "properties": {
+          "miner_id": {
+            "type": "string",
+            "example": "joshualover-dev"
+          },
+          "eligible": {
+            "type": "boolean",
+            "description": "是否有资格参与抽奖",
+            "example": true
+          },
+          "epoch": {
+            "type": "integer",
+            "format": "int64",
+            "example": 12345
+          },
+          "tickets": {
+            "type": "integer",
+            "description": "抽奖券数量",
+            "example": 3
+          },
+          "reason": {
+            "type": "string",
+            "description": "如果不合资格，说明原因",
+            "example": "Miner was active during epoch"
+          }
+        }
+      },
+      "AttestationRequest": {
+        "type": "object",
+        "required": ["miner_id", "fingerprint_data"],
+        "properties": {
+          "miner_id": {
+            "type": "string",
+            "example": "joshualover-dev"
+          },
+          "fingerprint_data": {
+            "type": "object",
+            "properties": {
+              "clock_skew": {
+                "type": "string",
+                "description": "时钟偏移数据"
+              },
+              "cache_timing": {
+                "type": "string",
+                "description": "缓存时序指纹"
+              },
+              "simd_identity": {
+                "type": "string",
+                "description": "SIMD 单元标识"
+              },
+              "thermal_drift": {
+                "type": "string",
+                "description": "热漂移熵"
+              },
+              "instruction_jitter": {
+                "type": "string",
+                "description": "指令路径抖动"
+              }
+            }
+          },
+          "hardware_info": {
+            "type": "object",
+            "properties": {
+              "cpu_type": {
+                "type": "string",
+                "example": "PowerPC G4"
+              },
+              "cpu_speed": {
+                "type": "number",
+                "format": "float",
+                "example": 1000
+              },
+              "memory_mb": {
+                "type": "integer",
+                "example": 512
+              },
+              "os": {
+                "type": "string",
+                "example": "Mac OS X Tiger"
+              }
+            }
+          }
+        }
+      },
+      "AttestationResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "miner_id": {
+            "type": "string",
+            "example": "joshualover-dev"
+          },
+          "verification_status": {
+            "type": "string",
+            "enum": ["verified", "pending_review", "rejected"],
+            "example": "verified"
+          },
+          "multiplier": {
+            "type": "number",
+            "format": "float",
+            "example": 2.5
+          },
+          "message": {
+            "type": "string",
+            "example": "Hardware attestation successful"
+          }
+        }
+      },
+      "SignedTransferRequest": {
+        "type": "object",
+        "required": ["from", "to", "amount", "signature"],
+        "properties": {
+          "from": {
+            "type": "string",
+            "example": "joshualover-dev"
+          },
+          "to": {
+            "type": "string",
+            "example": "recipient-wallet"
+          },
+          "amount": {
+            "type": "number",
+            "format": "float",
+            "example": 10.5
+          },
+          "signature": {
+            "type": "string",
+            "description": "Ed25519 签名 (hex 编码)",
+            "example": "a1b2c3d4..."
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1709366400
+          }
+        }
+      },
+      "AdminTransferRequest": {
+        "type": "object",
+        "required": ["from", "to", "amount"],
+        "properties": {
+          "from": {
+            "type": "string",
+            "example": "treasury"
+          },
+          "to": {
+            "type": "string",
+            "example": "joshualover-dev"
+          },
+          "amount": {
+            "type": "number",
+            "format": "float",
+            "example": 50.0
+          },
+          "reason": {
+            "type": "string",
+            "description": "转账原因",
+            "example": "Bounty payment for PR #4"
+          }
+        }
+      },
+      "TransferResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "transaction_id": {
+            "type": "string",
+            "example": "tx_abc123"
+          },
+          "from": {
+            "type": "string",
+            "example": "joshualover-dev"
+          },
+          "to": {
+            "type": "string",
+            "example": "recipient-wallet"
+          },
+          "amount": {
+            "type": "number",
+            "format": "float",
+            "example": 10.5
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1709366400
+          }
+        }
+      },
+      "WithdrawRequest": {
+        "type": "object",
+        "required": ["miner_id", "amount", "destination"],
+        "properties": {
+          "miner_id": {
+            "type": "string",
+            "example": "joshualover-dev"
+          },
+          "amount": {
+            "type": "number",
+            "format": "float",
+            "example": 100.0
+          },
+          "destination": {
+            "type": "string",
+            "description": "提现目标地址",
+            "example": "solana_wallet_address"
+          },
+          "network": {
+            "type": "string",
+            "enum": ["solana", "base", "ethereum"],
+            "example": "solana"
+          }
+        }
+      },
+      "WithdrawResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "request_id": {
+            "type": "string",
+            "example": "withdraw_123"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "processing", "completed", "failed"],
+            "example": "pending"
+          },
+          "estimated_completion": {
+            "type": "integer",
+            "format": "int64",
+            "description": "预计完成时间戳",
+            "example": 1709370000
+          }
+        }
+      }
+    }
+  }
+};
 
-      window.ui = ui;
-
-      // Add try-it-out for all endpoints
-      console.log('RustChain API Documentation loaded');
-    };
-  </script>
+        // 初始化 Swagger UI
+        window.onload = function() {
+            const ui = SwaggerUIBundle({
+                spec: openApiSpec,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                validatorUrl: null,
+                tryItOutEnabled: true,
+                displayRequestDuration: true,
+                filter: true,
+                showExtensions: true,
+                showCommonExtensions: true
+            });
+            
+            window.ui = ui;
+        };
+    </script>
 </body>
 </html>
